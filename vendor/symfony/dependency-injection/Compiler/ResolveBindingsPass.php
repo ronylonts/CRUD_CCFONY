@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\DependencyInjection\Compiler;
 
-use Symfony\Component\DependencyInjection\Argument\AbstractArgument;
 use Symfony\Component\DependencyInjection\Argument\BoundArgument;
 use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
@@ -55,11 +54,11 @@ class ResolveBindingsPass extends AbstractRecursivePass
                 }
 
                 if ($argumentType) {
-                    $message .= \sprintf('of type "%s" ', $argumentType);
+                    $message .= sprintf('of type "%s" ', $argumentType);
                 }
 
                 if ($argumentName) {
-                    $message .= \sprintf('named "%s" ', $argumentName);
+                    $message .= sprintf('named "%s" ', $argumentName);
                 }
 
                 if (BoundArgument::DEFAULTS_BINDING === $bindingType) {
@@ -67,17 +66,17 @@ class ResolveBindingsPass extends AbstractRecursivePass
                 } elseif (BoundArgument::INSTANCEOF_BINDING === $bindingType) {
                     $message .= 'under "_instanceof"';
                 } else {
-                    $message .= \sprintf('for service "%s"', $serviceId);
+                    $message .= sprintf('for service "%s"', $serviceId);
                 }
 
                 if ($file) {
-                    $message .= \sprintf(' in file "%s"', $file);
+                    $message .= sprintf(' in file "%s"', $file);
                 }
 
-                $message = \sprintf('A binding is configured for an argument %s, but no corresponding argument has been found. It may be unused and should be removed, or it may have a typo.', $message);
+                $message = sprintf('A binding is configured for an argument %s, but no corresponding argument has been found. It may be unused and should be removed, or it may have a typo.', $message);
 
                 if ($this->errorMessages) {
-                    $message .= \sprintf("\nCould be related to%s:", 1 < \count($this->errorMessages) ? ' one of' : '');
+                    $message .= sprintf("\nCould be related to%s:", 1 < \count($this->errorMessages) ? ' one of' : '');
                 }
                 foreach ($this->errorMessages as $m) {
                     $message .= "\n - ".$m;
@@ -138,7 +137,7 @@ class ResolveBindingsPass extends AbstractRecursivePass
             }
 
             if (null !== $bindingValue && !$bindingValue instanceof Reference && !$bindingValue instanceof Definition && !$bindingValue instanceof TaggedIteratorArgument && !$bindingValue instanceof ServiceLocatorArgument) {
-                throw new InvalidArgumentException(\sprintf('Invalid value for binding key "%s" for service "%s": expected "%s", "%s", "%s", "%s" or null, "%s" given.', $key, $this->currentId, Reference::class, Definition::class, TaggedIteratorArgument::class, ServiceLocatorArgument::class, get_debug_type($bindingValue)));
+                throw new InvalidArgumentException(sprintf('Invalid value for binding key "%s" for service "%s": expected "%s", "%s", "%s", "%s" or null, "%s" given.', $key, $this->currentId, Reference::class, Definition::class, TaggedIteratorArgument::class, ServiceLocatorArgument::class, get_debug_type($bindingValue)));
             }
         }
 
@@ -180,10 +179,10 @@ class ResolveBindingsPass extends AbstractRecursivePass
             foreach ($reflectionMethod->getParameters() as $key => $parameter) {
                 $names[$key] = $parameter->name;
 
-                if (\array_key_exists($key, $arguments) && '' !== $arguments[$key] && !$arguments[$key] instanceof AbstractArgument) {
+                if (\array_key_exists($key, $arguments) && '' !== $arguments[$key]) {
                     continue;
                 }
-                if (\array_key_exists($parameter->name, $arguments) && '' !== $arguments[$parameter->name] && !$arguments[$parameter->name] instanceof AbstractArgument) {
+                if (\array_key_exists($parameter->name, $arguments) && '' !== $arguments[$parameter->name]) {
                     continue;
                 }
                 if (
@@ -222,15 +221,13 @@ class ResolveBindingsPass extends AbstractRecursivePass
                 if (isset($bindingNames[$name]) || isset($bindingNames[$parsedName]) || isset($bindingNames[$parameter->name])) {
                     $bindingKey = array_search($binding, $bindings, true);
                     $argumentType = substr($bindingKey, 0, strpos($bindingKey, ' '));
-                    $this->errorMessages[] = \sprintf('Did you forget to add the type "%s" to argument "$%s" of method "%s::%s()"?', $argumentType, $parameter->name, $reflectionMethod->class, $reflectionMethod->name);
+                    $this->errorMessages[] = sprintf('Did you forget to add the type "%s" to argument "$%s" of method "%s::%s()"?', $argumentType, $parameter->name, $reflectionMethod->class, $reflectionMethod->name);
                 }
             }
 
             foreach ($names as $key => $name) {
                 if (\array_key_exists($name, $arguments) && (0 === $key || \array_key_exists($key - 1, $arguments))) {
-                    if (!array_key_exists($key, $arguments)) {
-                        $arguments[$key] = $arguments[$name];
-                    }
+                    $arguments[$key] = $arguments[$name];
                     unset($arguments[$name]);
                 }
             }

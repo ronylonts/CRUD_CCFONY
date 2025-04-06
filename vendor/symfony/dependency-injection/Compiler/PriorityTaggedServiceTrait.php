@@ -50,7 +50,6 @@ trait PriorityTaggedServiceTrait
             $tagName = $tagName->getTag();
         }
 
-        $parameterBag = $container->getParameterBag();
         $i = 0;
         $services = [];
 
@@ -82,13 +81,11 @@ trait PriorityTaggedServiceTrait
                 }
 
                 if (null !== $indexAttribute && isset($attribute[$indexAttribute])) {
-                    $index = $parameterBag->resolveValue($attribute[$indexAttribute]);
-                }
-                if (null === $index && null === $defaultIndex && $defaultPriorityMethod && $class) {
+                    $index = $attribute[$indexAttribute];
+                } elseif (null === $defaultIndex && $defaultPriorityMethod && $class) {
                     $defaultIndex = PriorityTaggedServiceUtil::getDefault($container, $serviceId, $class, $defaultIndexMethod ?? 'getDefaultName', $tagName, $indexAttribute, $checkTaggedItem);
                 }
-                $decorated = $definition->getTag('container.decorator')[0]['id'] ?? null;
-                $index = $index ?? $defaultIndex ?? $defaultIndex = $decorated ?? $serviceId;
+                $index ??= $defaultIndex ??= $serviceId;
 
                 $services[] = [$priority, ++$i, $index, $serviceId, $class];
             }
@@ -136,15 +133,11 @@ class PriorityTaggedServiceUtil
             return null;
         }
 
-        if ($r->isInterface()) {
-            return null;
-        }
-
         if (null !== $indexAttribute) {
-            $service = $class !== $serviceId ? \sprintf('service "%s"', $serviceId) : 'on the corresponding service';
-            $message = [\sprintf('Either method "%s::%s()" should ', $class, $defaultMethod), \sprintf(' or tag "%s" on %s is missing attribute "%s".', $tagName, $service, $indexAttribute)];
+            $service = $class !== $serviceId ? sprintf('service "%s"', $serviceId) : 'on the corresponding service';
+            $message = [sprintf('Either method "%s::%s()" should ', $class, $defaultMethod), sprintf(' or tag "%s" on %s is missing attribute "%s".', $tagName, $service, $indexAttribute)];
         } else {
-            $message = [\sprintf('Method "%s::%s()" should ', $class, $defaultMethod), '.'];
+            $message = [sprintf('Method "%s::%s()" should ', $class, $defaultMethod), '.'];
         }
 
         if (!($rm = $r->getMethod($defaultMethod))->isStatic()) {
@@ -159,7 +152,7 @@ class PriorityTaggedServiceUtil
 
         if ('priority' === $indexAttribute) {
             if (!\is_int($default)) {
-                throw new InvalidArgumentException(implode(\sprintf('return int (got "%s")', get_debug_type($default)), $message));
+                throw new InvalidArgumentException(implode(sprintf('return int (got "%s")', get_debug_type($default)), $message));
             }
 
             return $default;
@@ -170,7 +163,7 @@ class PriorityTaggedServiceUtil
         }
 
         if (!\is_string($default)) {
-            throw new InvalidArgumentException(implode(\sprintf('return string|int (got "%s")', get_debug_type($default)), $message));
+            throw new InvalidArgumentException(implode(sprintf('return string|int (got "%s")', get_debug_type($default)), $message));
         }
 
         return $default;

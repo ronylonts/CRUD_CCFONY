@@ -20,6 +20,8 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
  */
 class Profile
 {
+    private string $token;
+
     /**
      * @var DataCollectorInterface[]
      */
@@ -38,9 +40,9 @@ class Profile
      */
     private array $children = [];
 
-    public function __construct(
-        private string $token,
-    ) {
+    public function __construct(string $token)
+    {
+        $this->token = $token;
     }
 
     public function setToken(string $token): void
@@ -206,7 +208,7 @@ class Profile
     public function getCollector(string $name): DataCollectorInterface
     {
         if (!isset($this->collectors[$name])) {
-            throw new \InvalidArgumentException(\sprintf('Collector "%s" does not exist.', $name));
+            throw new \InvalidArgumentException(sprintf('Collector "%s" does not exist.', $name));
         }
 
         return $this->collectors[$name];

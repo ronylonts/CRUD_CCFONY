@@ -22,9 +22,11 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 class RegisterReverseContainerPass implements CompilerPassInterface
 {
-    public function __construct(
-        private bool $beforeRemoving,
-    ) {
+    private bool $beforeRemoving;
+
+    public function __construct(bool $beforeRemoving)
+    {
+        $this->beforeRemoving = $beforeRemoving;
     }
 
     public function process(ContainerBuilder $container): void

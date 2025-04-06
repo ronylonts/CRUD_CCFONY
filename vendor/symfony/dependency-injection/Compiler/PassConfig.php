@@ -22,12 +22,11 @@ use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
  */
 class PassConfig
 {
-    // In the order of execution
-    public const TYPE_BEFORE_OPTIMIZATION = 'beforeOptimization';
-    public const TYPE_OPTIMIZE = 'optimization';
-    public const TYPE_BEFORE_REMOVING = 'beforeRemoving';
-    public const TYPE_REMOVE = 'removing';
     public const TYPE_AFTER_REMOVING = 'afterRemoving';
+    public const TYPE_BEFORE_OPTIMIZATION = 'beforeOptimization';
+    public const TYPE_BEFORE_REMOVING = 'beforeRemoving';
+    public const TYPE_OPTIMIZE = 'optimization';
+    public const TYPE_REMOVE = 'removing';
 
     private MergeExtensionConfigurationPass $mergePass;
     private array $afterRemovingPasses;
@@ -56,7 +55,6 @@ class PassConfig
             new AutoAliasServicePass(),
             new ValidateEnvPlaceholdersPass(),
             new ResolveDecoratorStackPass(),
-            new ResolveAutowireInlineAttributesPass(),
             new ResolveChildDefinitionsPass(),
             new RegisterServiceSubscribersPass(),
             new ResolveParameterPlaceHoldersPass(false, false),
@@ -129,7 +127,7 @@ class PassConfig
     {
         $property = $type.'Passes';
         if (!isset($this->$property)) {
-            throw new InvalidArgumentException(\sprintf('Invalid type "%s".', $type));
+            throw new InvalidArgumentException(sprintf('Invalid type "%s".', $type));
         }
 
         $passes = &$this->$property;

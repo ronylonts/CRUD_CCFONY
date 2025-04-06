@@ -1,19 +1,6 @@
 CHANGELOG
 =========
 
-7.2
----
-
- * Allow configuring the secret used to sign login links
- * Allow passing optional passport attributes to `Security::login()`
-
-7.1
----
-
- * Mark class `ExpressionCacheWarmer` as `final`
- * Support multiple signature algorithms for OIDC Token
- * Support JWK or JWKSet for OIDC Token
-
 7.0
 ---
 

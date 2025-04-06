@@ -24,10 +24,12 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class Store implements StoreInterface
 {
+    protected string $root;
     /** @var \SplObjectStorage<Request, string> */
     private \SplObjectStorage $keyCache;
     /** @var array<string, resource> */
     private array $locks = [];
+    private array $options;
 
     /**
      * Constructor.
@@ -39,15 +41,16 @@ class Store implements StoreInterface
      *
      * @throws \RuntimeException
      */
-    public function __construct(
-        protected string $root,
-        private array $options = [],
-    ) {
+    public function __construct(string $root, array $options = [])
+    {
+        $this->root = $root;
         if (!is_dir($this->root) && !@mkdir($this->root, 0777, true) && !is_dir($this->root)) {
-            throw new \RuntimeException(\sprintf('Unable to create the store directory (%s).', $this->root));
+            throw new \RuntimeException(sprintf('Unable to create the store directory (%s).', $this->root));
         }
         $this->keyCache = new \SplObjectStorage();
-        $this->options['private_headers'] ??= ['Set-Cookie'];
+        $this->options = array_merge([
+            'private_headers' => ['Set-Cookie'],
+        ], $options);
     }
 
     /**
@@ -278,7 +281,7 @@ class Store implements StoreInterface
      */
     private function requestsMatch(?string $vary, array $env1, array $env2): bool
     {
-        if (!$vary) {
+        if (empty($vary)) {
             return true;
         }
 

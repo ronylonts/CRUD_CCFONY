@@ -91,7 +91,7 @@
             <xsd:element name="memory" type="memory" />
             <xsd:element name="ldap" type="ldap" />
             <!-- allow factories to use dynamic elements -->
-            <xsd:any processContents="lax" namespace="##other" />
+            <xsd:any processContents="lax" />
         </xsd:choice>
         <xsd:attribute name="name" type="xsd:string" use="required" />
         <xsd:attribute name="id" type="xsd:string" />
@@ -112,6 +112,7 @@
 
     <xsd:complexType name="user">
         <xsd:attribute name="identifier" type="xsd:string" />
+        <xsd:attribute name="name" type="xsd:string" />
         <xsd:attribute name="password" type="xsd:string" />
         <xsd:attribute name="roles" type="xsd:string" />
     </xsd:complexType>
@@ -137,6 +138,7 @@
             <xsd:element name="anonymous" type="anonymous" minOccurs="0" maxOccurs="1" />
             <xsd:element name="form-login" type="form_login" minOccurs="0" maxOccurs="1" />
             <xsd:element name="form-login-ldap" type="form_login_ldap" minOccurs="0" maxOccurs="1" />
+            <xsd:element name="guard" type="guard" minOccurs="0" maxOccurs="1" />
             <xsd:element name="access-token" type="access_token" minOccurs="0" maxOccurs="1" />
             <xsd:element name="http-basic" type="http_basic" minOccurs="0" maxOccurs="1" />
             <xsd:element name="http-basic-ldap" type="http_basic_ldap" minOccurs="0" maxOccurs="1" />
@@ -149,7 +151,7 @@
             <xsd:element name="x509" type="x509" minOccurs="0" maxOccurs="1" />
             <xsd:element name="required-badge" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
             <!-- allow factories to use dynamic elements -->
-            <xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded" namespace="##other" />
+            <xsd:any processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:choice>
         <xsd:attribute name="name" type="xsd:string" use="required" />
         <xsd:attribute name="pattern" type="xsd:string" />
@@ -204,7 +206,6 @@
         <xsd:attribute name="check-path" type="xsd:string" />
         <xsd:attribute name="use-forward" type="xsd:boolean" />
         <xsd:attribute name="require-previous-session" type="xsd:boolean" />
-        <xsd:attribute name="provider" type="xsd:string" />
     </xsd:complexType>
 
     <xsd:attributeGroup name="success-handler-options">
@@ -251,6 +252,14 @@
                 <xsd:attributeGroup ref="ldap-factory" />
             </xsd:extension>
         </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="guard">
+        <xsd:sequence>
+            <xsd:element name="authenticator" type="xsd:string" minOccurs="1" maxOccurs="unbounded" />
+        </xsd:sequence>
+        <xsd:attribute name="provider" type="xsd:string" />
+        <xsd:attribute name="entry-point" type="xsd:string" />
     </xsd:complexType>
 
     <xsd:complexType name="http_basic">

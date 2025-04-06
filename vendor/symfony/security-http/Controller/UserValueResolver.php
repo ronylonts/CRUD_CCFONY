@@ -26,9 +26,11 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
  */
 final class UserValueResolver implements ValueResolverInterface
 {
-    public function __construct(
-        private TokenStorageInterface $tokenStorage,
-    ) {
+    private TokenStorageInterface $tokenStorage;
+
+    public function __construct(TokenStorageInterface $tokenStorage)
+    {
+        $this->tokenStorage = $tokenStorage;
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): array
@@ -47,7 +49,7 @@ final class UserValueResolver implements ValueResolverInterface
             }
 
             if (!$argument->isNullable()) {
-                throw new AccessDeniedException(\sprintf('There is no logged-in user to pass to $%s, make the argument nullable if you want to allow anonymous access to the action.', $argument->getName()));
+                throw new AccessDeniedException(sprintf('There is no logged-in user to pass to $%s, make the argument nullable if you want to allow anonymous access to the action.', $argument->getName()));
             }
 
             return [null];
@@ -57,6 +59,6 @@ final class UserValueResolver implements ValueResolverInterface
             return [$user];
         }
 
-        throw new AccessDeniedException(\sprintf('The logged-in user is an instance of "%s" but a user of type "%s" is expected.', $user::class, $argument->getType()));
+        throw new AccessDeniedException(sprintf('The logged-in user is an instance of "%s" but a user of type "%s" is expected.', $user::class, $argument->getType()));
     }
 }

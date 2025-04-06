@@ -28,22 +28,24 @@ class LazyObjectState
     public const STATUS_INITIALIZED_PARTIAL = 4;
 
     /**
+     * @var array<string, true>
+     */
+    public readonly array $skippedProperties;
+
+    /**
      * @var self::STATUS_*
      */
-    public int $status = self::STATUS_UNINITIALIZED_FULL;
+    public int $status = 0;
 
     public object $realInstance;
 
-    /**
-     * @param array<string, true> $skippedProperties
-     */
-    public function __construct(
-        public \Closure $initializer,
-        public array $skippedProperties = [],
-    ) {
+    public function __construct(public readonly \Closure $initializer, $skippedProperties = [])
+    {
+        $this->skippedProperties = $skippedProperties;
+        $this->status = self::STATUS_UNINITIALIZED_FULL;
     }
 
-    public function initialize($instance, $propertyName, $writeScope)
+    public function initialize($instance, $propertyName, $propertyScope)
     {
         if (self::STATUS_UNINITIALIZED_FULL !== $this->status) {
             return $this->status;
@@ -74,22 +76,16 @@ class LazyObjectState
         $skippedProperties = $this->skippedProperties;
         $properties = (array) $instance;
 
-        foreach ($propertyScopes as $key => [$scope, $name, , $access]) {
+        foreach ($propertyScopes as $key => [$scope, $name, $readonlyScope]) {
             $propertyScopes[$k = "\0$scope\0$name"] ?? $propertyScopes[$k = "\0*\0$name"] ?? $k = $name;
 
-            if ($k === $key && ($access & Hydrator::PROPERTY_HAS_HOOKS || ($access >> 2) & \ReflectionProperty::IS_READONLY || !\array_key_exists($k, $properties))) {
+            if ($k === $key && (null !== $readonlyScope || !\array_key_exists($k, $properties))) {
                 $skippedProperties[$k] = true;
             }
         }
 
         foreach (LazyObjectRegistry::$classResetters[$class] as $reset) {
             $reset($instance, $skippedProperties);
-        }
-
-        foreach ((array) $instance as $name => $value) {
-            if ("\0" !== ($name[0] ?? '') && !\array_key_exists($name, $skippedProperties)) {
-                unset($instance->$name);
-            }
         }
 
         $this->status = self::STATUS_UNINITIALIZED_FULL;
